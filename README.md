@@ -1,19 +1,55 @@
 # KISStalon
 
-A lightweight agent orchestrator that uses cron and the Claude CLI to run periodic tasks.
+Bare-bones cron for your agents. A unit of work is a **talon**.
 
-Each task is a **talon** — a markdown file with YAML frontmatter describing its schedule, permissions, and prompt. Every 10 minutes, cron runs `kisstalon tick`, which checks what's due and spawns Claude to execute each task. Results are appended directly to the talon file under an `# Invocations` heading, building up a running log. Urgent findings trigger macOS notifications or ntfy.sh webhooks.
+KISStalon includes a Claude Code skill, so in a chat you can just say:
 
-## Quick start
+> Add a nightly talon that checks macrumors.com and 9to5mac.com for news about the next Mac Mini generation. Give it web fetch and web search permissions.
+
+A markdown file is the database for one talon. It holds the schedule, permissions, context, and invocations.
+
+```markdown
+---
+id: mac-mini-news
+created: '2026-03-22T10:00:00'
+schedule: nightly
+notify: osascript
+permissions:
+- WebFetch
+- WebSearch
+---
+
+Check macrumors.com and 9to5mac.com for news about the next
+Mac Mini generation. Summarize anything new.
+
+# Invocations
+
+## 2025-03-23 02:10
+No new articles found on either site.
+
+## 2025-03-24 02:10
+NOTIFY: 9to5Mac reports Apple suppliers ramping M5 Mac Mini production.
+New article: https://9to5mac.com/2026/03/23/m5-mac-mini-production/
+```
+
+KISStalon also includes a Python CLI to list, create, and inspect talons. Its use by humans is optional. You can just install the skill and talk to Claude, or edit the markdown files directly.
+
+## Install
 
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
 pip install -e .
-kisstalon init      # creates ~/.kisstalon/, adds crontab entry
-kisstalon create --id check-site --schedule "every 12h" --prompt "Check example.com for downtime"
-kisstalon tick      # run manually, or wait for cron
-kisstalon list      # see all talons and their status
-kisstalon show check-site  # see recent invocations
+kisstalon init      # creates ~/.kisstalon/, adds crontab entry, installs skill
+```
+
+## CLI
+
+```
+kisstalon init                # set up dirs, crontab, skill symlink
+kisstalon tick                # run any due talons (called by cron every 10 min)
+kisstalon list                # show all talons and their status
+kisstalon show <id>           # print a talon's recent invocations
+kisstalon create --id NAME --schedule "every 12h" --prompt "..."
 ```
 
 ## Schedule formats
@@ -23,32 +59,12 @@ kisstalon show check-site  # see recent invocations
 - `daily` — once per day
 - `nightly` — once per day, between 1am–5am
 
-## Talon file format
-
-```markdown
----
-id: check-site
-created: 2026-03-22T10:00:00
-schedule: every 12h
-notify: osascript
-permissions:
-  - Bash(read_only)
-  - WebFetch
-  - WebSearch
-  - Read
----
-
-Check example.com for downtime and report any issues.
-
-# Invocations
-```
-
 ## Configuration
 
-Copy `config.example.toml` to `~/.kisstalon/config.toml` and edit as needed. Supports ntfy.sh for push notifications and extra Claude CLI flags.
+Copy `config.example.toml` to `~/.kisstalon/config.toml`. Supports ntfy.sh for push notifications and extra Claude CLI flags.
 
 ## Requirements
 
 - Python 3.10+
-- [Claude CLI](https://claude.ai/download) installed and on PATH
+- [Claude CLI](https://claude.ai/download) on PATH
 - macOS (for osascript notifications; ntfy works anywhere)
