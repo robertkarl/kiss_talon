@@ -4,7 +4,10 @@ Keep-it-simple-stupid cron hooks for Claude. A unit of work is a **talon**.
 
 > Add a nightly talon that checks macrumors.com and 9to5mac.com for news about the next Mac Mini generation. Give it web fetch and web search permissions.
 
+
 A markdown file is the database for one talon. It holds the schedule, permissions, context, and invocations.
+
+Claude will launch nightly, given the markdown file as context.
 
 ```markdown
 ---
