@@ -37,7 +37,7 @@ kiss_talon also includes a Python CLI to list, create, and inspect talons. Its u
 ## Install
 
 ```bash
-python3 -m venv .venv && source .venv/bin/activate
+python3 -m venv venv && source venv/bin/activate
 pip install -e .
 kiss_talon init      # creates ~/.kiss_talon/, adds crontab entry, installs skill
 ```
@@ -50,6 +50,7 @@ kiss_talon tick                # run any due talons (called by cron every 10 min
 kiss_talon list                # show all talons and their status
 kiss_talon show <id>           # print a talon's recent invocations
 kiss_talon create --id NAME --schedule "every 12h" --prompt "..."
+kiss_talon create --id NAME --after OTHER_ID --prompt "React to other talon"
 ```
 
 ## Schedule formats
@@ -58,6 +59,21 @@ kiss_talon create --id NAME --schedule "every 12h" --prompt "..."
 - `every Xm` — every X minutes
 - `daily` — once per day
 - `nightly` — once per day, between 1am–5am
+
+## Reactive talons (`after`)
+
+Instead of a schedule, a talon can trigger after another talon completes. Use `after` instead of `schedule` in the frontmatter:
+
+```markdown
+---
+id: summarize-news
+after: mac-mini-news
+---
+
+Read the latest invocation of mac-mini-news and write a one-paragraph summary.
+```
+
+The reactive talon receives the triggering talon's latest output as context. Chains are supported (A triggers B triggers C) up to a depth limit. Warnings are emitted for missing or circular `after` targets.
 
 ## Configuration
 
