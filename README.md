@@ -1,8 +1,6 @@
-# KISStalon
+# kiss-talon
 
-Bare-bones cron for your agents. A unit of work is a **talon**.
-
-KISStalon includes a Claude Code skill, so in a chat you can just say:
+A Keep-it-simple-stupid cron hooks for Claude. A unit of work is a **talon**.
 
 > Add a nightly talon that checks macrumors.com and 9to5mac.com for news about the next Mac Mini generation. Give it web fetch and web search permissions.
 
@@ -33,6 +31,8 @@ New article: https://9to5mac.com/2026/03/23/m5-mac-mini-production/
 ```
 
 KISStalon also includes a Python CLI to list, create, and inspect talons. Its use by humans is optional. You can just install the skill and talk to Claude, or edit the markdown files directly.
+
+KISStalon can optionally pop a notification dialog on macos.
 
 ## Install
 
